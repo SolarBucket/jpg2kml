@@ -19,7 +19,9 @@
 # Tiff header within the APP1 section
 #
 # The procedure terminates when it has the data is wants
-# and does not read until the End of Image marker
+# and does not read until the End of Image marker.
+#
+# There is no error handling
 #
 # Markers processed are:
 #
@@ -84,10 +86,43 @@ def GetTagData(intReqTag,lstIfd,stmSrc,intTifOff,strBof):
 
     ########################################################
     #
+    # Attemps to get the data associated with a given tak
+    # in an IFD (a 12 byte structure).  If the tag exists
+    # the function returns a tuple of the appropriate length (e.g.
+    # DMS for lat/lng or a single string for model name.  If
+    # the required tag is not found, then an empty tuple is
+    # returned.
+    #
+    # If the length of data is less than or equal to four byte,
+    # it is contained in the last four bytes of the IFD entry,
+    # if it is longer, the last four bytes will be an offset
+    # to the data relative to the start of the Tiff header.
+    #
+    # Inputs
+    #
+    # ReqTag - the tag id of the required data.  each IFD has
+    # its own tag ids.  For example in the Exif section, 0x02
+    # returns a different parameter than 0x02 in the GPS section.
+    #
+    # IFD - A list of 12 byte IFD entries.
+    #
+    # Src - an open file.
+    #
+    # TifOff - Offset from the start of the file of the
+    # Tiff header.
+    #
+    # BoF - Byte order of the data, either Motorola or Intel
+    #
+    # Output
+    #
+    # A tuple containing the data associated with the tag
+    # the contents of the tuple is tag specific, e.g.
+    # Lat is returned as DMS.
+    #
     # Notes
     #
-    # If the tag is not found, the function returns an
-    # empty tuple (length=0).
+    # Not all possible formats have been implimented, so
+    # the function fail.
     #
     # ToDo
     #
@@ -228,14 +263,38 @@ def GetGps(strPath,strFile):
 
     ########################################################
     #
+    # Attempts to find GPS data in Tiff header, if some is found
+    # returns a dictionary containing lat, lng etc. if not, then
+    # an empty dictionary is returned.
+    #
+    # This code can be adapted to obtain other information from
+    # the Tiff header, but the project for which this was written
+    # was only interested in location.
+    #
+    # Inputs
+    #
+    # Path - the folder/directory where the file is located
+    #        including trailing //
+    #
+    # File - a jpeg file
+    #
+    # Output
+    #
+    # Dictionary contain lat, lng etc.
+    #
     # Notes
     #
-    # It's assumed that the file exists
+    # It's assumed that the file exists.
+    #
+    # Its assumed that if there is a GPS section, that it contains
+    # at least a lat/lng pair.
+    #
+    # The contents of the GPS section varies with the device used
+    # to capture the image.  For example, the GPS section can contain
+    # the date and time, however, if this is important, it may be
+    # prefereable to obtain it from the IFD section.
     #
     # ToDo
-    #
-    # Check that the pointer does not go past the end of
-    # the file
     #
     # Impliment with block
     #
@@ -249,9 +308,15 @@ def GetGps(strPath,strFile):
 
     stmSrc = open(strPath+strFile,'rb')
 
-    # Loop through the file
+    # Get length of file and reset pointer
 
-    while True:
+    stmSrc.seek(0,2)
+    intLoF = stmSrc.tell()
+    stmSrc.seek(0,0)
+    
+    # Loop through the file and avoid reading past the end
+
+    while stmSrc.tell() < intLof:
 
         # Read Marker
 
