@@ -299,7 +299,7 @@ def GetGps(strPath,strFile):
     # Impliment with block
     #
     ########################################################
-
+    
     # default to an empty dictionary
 
     dicPoint = {}
@@ -316,7 +316,7 @@ def GetGps(strPath,strFile):
     
     # Loop through the file and avoid reading past the end
 
-    while stmSrc.tell() < intLof:
+    while stmSrc.tell() < intLoF:
 
         # Read Marker
 

@@ -32,13 +32,12 @@ import jpg2kml_kml
 
 # jpg Paths
 
-strJpgPath = 'c:\\users\\david\\onedrive\\exif\\test_images\\'
-# strJpgFile = 'gherkin.jpg'
+strJpgPath = 'c:\\users\\david\\onedrive\\exif\\cornwall\\'
 
 # KML Paths
 
-strKmlPath = 'c:\\users\\david\\onedrive\\exif\\'
-strKmlFile = 'exif.kml'
+strKmlPath = 'c:\\users\\david\\onedrive\\jpg2kml\\'
+strKmlFile = 'jpg2kml.kml'
 
 # List to hold points
 
